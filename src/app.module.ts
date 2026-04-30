@@ -1,5 +1,6 @@
 import { Module }              from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AdoptionRequestsModule } from './adoption-requests/adoption-requests.module';
 import { TypeOrmModule }       from '@nestjs/typeorm';
 import { AnimalsModule }       from './animals/animals.module';
 import { LocationsModule }     from './locations/locations.module';
@@ -29,6 +30,7 @@ import { AppService }          from './app.service';
     AnimalsModule,
     LocationsModule,
     UsersModule,
+    AdoptionRequestsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
