@@ -1,16 +1,22 @@
 import {
-  Controller, Get, Post, Body,
-  Patch, Param, Delete, ParseUUIDPipe,
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { CreateAnimalDto } from './dto/create-animal.dto';
 import { UpdateAnimalDto } from './dto/update-animal.dto';
 import { AnimalsService } from './animals.service';
+import { FilterAnimalDto } from './dto/filter.animal.dto';
 
 @Controller('animals')
 export class AnimalsController {
-  constructor(
-    private readonly animalsService: AnimalsService,
-  ) {}
+  constructor(private readonly animalsService: AnimalsService) {}
 
   @Post()
   create(@Body() dto: CreateAnimalDto) {
@@ -18,21 +24,18 @@ export class AnimalsController {
   }
 
   @Get()
-  findAll() {
-    return this.animalsService.findAll();
+  findAll(@Query() filters: FilterAnimalDto) {
+    return this.animalsService.findAll(filters);
   }
 
-    // ParseUUIDPipe valida que :id sea un UUID válido
+  // ParseUUIDPipe valida que :id sea un UUID válido
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.animalsService.findOne(id);
   }
 
   @Patch(':id')
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateAnimalDto,
-  ) {
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateAnimalDto) {
     return this.animalsService.update(id, dto);
   }
 

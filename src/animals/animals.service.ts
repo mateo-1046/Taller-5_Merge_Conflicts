@@ -1,18 +1,21 @@
 import {
-  Injectable, NotFoundException,
-  BadRequestException, InternalServerErrorException, Logger,
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DeepPartial } from 'typeorm';
-import { Animal }           from './entities/animal.entity';
-import { Location }         from '../locations/entities/location.entity';
-import { User }             from '../users/entities/user.entity';
-import { CreateAnimalDto }  from './dto/create-animal.dto';
-import { UpdateAnimalDto }  from './dto/update-animal.dto';
+import { Animal } from './entities/animal.entity';
+import { Location } from '../locations/entities/location.entity';
+import { User } from '../users/entities/user.entity';
+import { CreateAnimalDto } from './dto/create-animal.dto';
+import { UpdateAnimalDto } from './dto/update-animal.dto';
+import { FilterAnimalDto } from './dto/filter.animal.dto';
 
 @Injectable()
 export class AnimalsService {
-
   private readonly logger = new Logger('AnimalsService');
 
   constructor(
@@ -36,20 +39,32 @@ export class AnimalsService {
 
     let registeredBy: User | null = null;
     if (registeredById) {
-      registeredBy = await this.userRepo.findOne({ where: { id: registeredById } });
+      registeredBy = await this.userRepo.findOne({
+        where: { id: registeredById },
+      });
       if (!registeredBy)
         throw new NotFoundException(`User ${registeredById} no encontrado`);
     }
 
     try {
-      const animal = this.animalRepo.create({ ...rest, location, registeredBy } as DeepPartial<Animal>);
+      const animal = this.animalRepo.create({
+        ...rest,
+        location,
+        registeredBy,
+      } as DeepPartial<Animal>);
       return await this.animalRepo.save(animal);
-    } catch (err) { this.handleError(err); }
+    } catch (err) {
+      this.handleError(err);
+    }
   }
 
-  async findAll() {
+  async findAll(filters: FilterAnimalDto) {
     return this.animalRepo.find({
-      relations: ['registeredBy'], // location se carga sola (eager: true)
+      where: {
+        ...(filters.especie && { especie: filters.especie }),
+        ...(filters.estado && { estado: filters.estado }),
+      },
+      relations: ['registeredBy'],
     });
   }
 
@@ -58,8 +73,7 @@ export class AnimalsService {
       where: { id },
       relations: ['registeredBy', 'interestedUsers'],
     });
-    if (!animal)
-      throw new NotFoundException(`Animal ${id} no encontrado`);
+    if (!animal) throw new NotFoundException(`Animal ${id} no encontrado`);
     return animal;
   }
 
@@ -68,7 +82,9 @@ export class AnimalsService {
     this.animalRepo.merge(animal, dto);
     try {
       return await this.animalRepo.save(animal);
-    } catch (err) { this.handleError(err); }
+    } catch (err) {
+      this.handleError(err);
+    }
   }
 
   async remove(id: string) {
@@ -78,9 +94,12 @@ export class AnimalsService {
   }
 
   private handleError(err: any) {
-    if (err.code === '23505')          // PG unique constraint
+    if (err.code === '23505')
+      // PG unique constraint
       throw new BadRequestException(`Valor duplicado: ${err.detail}`);
     this.logger.error(err);
-    throw new InternalServerErrorException('Error inesperado — revisa los logs');
+    throw new InternalServerErrorException(
+      'Error inesperado — revisa los logs',
+    );
   }
 }
