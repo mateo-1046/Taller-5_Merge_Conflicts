@@ -1,9 +1,9 @@
 import { Module }                        from '@nestjs/common';
 import { ConfigModule, ConfigService }   from '@nestjs/config';
 import { TypeOrmModule }                  from '@nestjs/typeorm';
-import { Location } from '../src/locations/entities/location.entity';
-import { User }     from '../src/users/entities/user.entity';
-import { Animal }   from '../src/animals/entities/animal.entity';
+import { Location } from '../locations/entities/location.entity';
+import { User }     from '../users/entities/user.entity';
+import { Animal }   from '../animals/entities/animal.entity';
 import { SeederService } from './seeder.service';
 
 @Module({

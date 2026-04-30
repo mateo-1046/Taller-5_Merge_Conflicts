@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository }    from '@nestjs/typeorm';
 import { Repository }          from 'typeorm';
-import { Location } from '../src/locations/entities/location.entity';
-import { User }     from '../src/users/entities/user.entity';
-import { Animal }   from '../src/animals/entities/animal.entity';
+import { Location } from '../locations/entities/location.entity';
+import { User }     from '../users/entities/user.entity';
+import { Animal }   from '../animals/entities/animal.entity';
 
 @Injectable()
 export class SeederService {
