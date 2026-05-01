@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { Location } from '../locations/entities/location.entity';
 import { User } from '../users/entities/user.entity';
 import { Animal } from '../animals/entities/animal.entity';
@@ -204,11 +204,10 @@ export class SeederService {
   async clearAndSeed() {
     this.logger.warn('Limpiando tablas en orden (FK constraints)...');
     // Tabla ManyToMany: TypeORM no la limpia con delete({})
-    await this.requestRepo.delete({}); // ← línea nueva
-    await this.animalRepo.query('DELETE FROM user_animal_favorites');
-    await this.animalRepo.delete({});
-    await this.userRepo.delete({});
-    await this.locationRepo.delete({});
+    await this.requestRepo.delete({ id: Not(IsNull()) });
+    await this.animalRepo.delete({ id: Not(IsNull()) });
+    await this.userRepo.delete({ id: Not(IsNull()) });
+    await this.locationRepo.delete({ id: Not(IsNull()) });
     this.logger.log('Tablas vaciadas. Iniciando seed...');
     await this.seed();
   }
